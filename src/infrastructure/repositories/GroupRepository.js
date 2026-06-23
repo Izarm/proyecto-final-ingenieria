@@ -15,7 +15,7 @@ class GroupRepository {
         `SELECT g.id, g.grade_id, g.name, gr.name as grade_name
          FROM \`groups\` g
          JOIN grades gr ON g.grade_id = gr.id
-         WHERE g.deleted_at IS NULL
+         WHERE g.deleted_at IS NULL AND gr.deleted_at IS NULL
          ORDER BY 
              CAST(gr.name AS UNSIGNED) ASC,
              FIELD(g.name, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J') ASC`

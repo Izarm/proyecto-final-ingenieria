@@ -95,6 +95,31 @@ class GradeRepository {
         return rows[0] || null;
     }
 
+    async deleteGroupsByGrade(gradeId) {
+        await pool.query(
+            `UPDATE \`groups\` SET deleted_at = NOW() WHERE grade_id = ? AND deleted_at IS NULL`,
+            [gradeId]
+        );
+    }
+
+    async deleteAssignmentsByGrade(gradeId) {
+        const [groups] = await pool.query(
+            `SELECT id FROM \`groups\` WHERE grade_id = ?`,
+            [gradeId]
+        );
+        const groupIds = groups.map(g => g.id);
+        if (groupIds.length > 0) {
+            await pool.query(
+                `UPDATE subject_assignments SET deleted_at = NOW() WHERE group_id IN (?) AND deleted_at IS NULL`,
+                [groupIds]
+            );
+        }
+        await pool.query(
+            `UPDATE subject_assignments SET deleted_at = NOW() WHERE grade_id = ? AND deleted_at IS NULL`,
+            [gradeId]
+        );
+    }
+
     async deleteEnrollmentsByGrade(gradeId) {
         const connection = await pool.getConnection();
         try {
